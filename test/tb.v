@@ -22,8 +22,21 @@ module tb ();
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
+  // These power signals are REQUIRED for Gate Level (GL) simulations
+`ifdef GL_TEST
+  wire VPWR = 1'b1;
+  wire VGND = 1'b0;
+`endif
+
   // Instantiate the project
   tt_um_example user_project (
+
+      // Connect power pins only if this is a GL test
+`ifdef GL_TEST
+      .VPWR(VPWR),
+      .VGND(VGND),
+`endif
+
       .ui_in   (ui_in),
       .uo_out  (uo_out),
       .uio_in  (uio_in),
