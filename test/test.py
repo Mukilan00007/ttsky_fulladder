@@ -9,29 +9,39 @@ async def test_project(dut):
     dut.ena.value = 1
     dut.ui_in.value = 0
     dut.uio_in.value = 0
-    
-    # --- 2. THE RESET SEQUENCE (Fixes the 'XXXXXXXX' error) ---
+
+    # --- 2. RESET SEQUENCE ---
     dut._log.info("Resetting the DUT...")
-    dut.rst_n.value = 0          # Pull reset low
-    await Timer(100, units="ns") # Wait for the reset to propagate
-    dut.rst_n.value = 1          # Pull reset high
-    await Timer(100, units="ns") # Wait for the circuit to settle
+    dut.rst_n.value = 0          # Active low reset
+    await Timer(100, units="ns")
+    dut.rst_n.value = 1
+    await Timer(100, units="ns")
     dut._log.info("Reset complete.")
 
-    # --- 3. RUN YOUR ADDER TESTS ---
-    
-    # Test Case 1: 1 + 1 + 0 = 2 (Binary 10)
-    # ui_in[0]=1, ui_in[1]=1, ui_in[2]=0 -> ui_in = 3
-    dut.ui_in.value = 3
-    await Timer(10, units="ns")
-    dut._log.info(f"Input: 3, Output: {int(dut.uo_out.value)}")
-    assert dut.uo_out.value == 2
+    # --- 3. TEST COUNT UP ---
+    # ui_in[0] = reset
+    # ui_in[1] = up_down
+    # reset=0, up_down=1  => 00000010 = 2
+    dut.ui_in.value = 2
 
-    # Test Case 2: 1 + 1 + 1 = 3 (Binary 11)
-    # ui_in[0]=1, ui_in[1]=1, ui_in[2]=1 -> ui_in = 7
-    dut.ui_in.value = 7
+    for i in range(5):
+        await Timer(10, units="ns")
+        dut._log.info(f"Count Up Step {i+1}: Output = {int(dut.uo_out.value)}")
+
+    # --- 4. TEST COUNT DOWN ---
+    # reset=0, up_down=0 => 00000000 = 0
+    dut.ui_in.value = 0
+
+    for i in range(5):
+        await Timer(10, units="ns")
+        dut._log.info(f"Count Down Step {i+1}: Output = {int(dut.uo_out.value)}")
+
+    # --- 5. TEST RESET AGAIN ---
+    # reset=1 => 00000001 = 1
+    dut.ui_in.value = 1
     await Timer(10, units="ns")
-    dut._log.info(f"Input: 7, Output: {int(dut.uo_out.value)}")
-    assert dut.uo_out.value == 3
+    dut._log.info(f"After Reset: Output = {int(dut.uo_out.value)}")
+
+    assert dut.uo_out.value == 0
 
     dut._log.info("All tests passed!")
