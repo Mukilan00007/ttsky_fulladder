@@ -1,20 +1,17 @@
-<!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
-
 ## How it works
+This project implements a combinatorial 3-input Full Adder. It uses the first three bits of the input bus (`ui_in[0]`, `ui_in[1]`, and `ui_in[2]`) as the three binary inputs (A, B, and Carry-in). 
 
-Explain how your project works
+The internal logic calculates the sum using the expression `{carry, sum} = a + b + c`. 
+- **uo_out[0]**: Represents the **Sum** (LSB).
+- **uo_out[1]**: Represents the **Carry-out** (MSB).
 
 ## How to test
+After power-on and releasing reset (`rst_n` high), you can test the logic by applying signals to the input pins:
+1. Set `ui_in` to `1` (`001` binary): `uo_out` should be `1` (Sum=1, Carry=0).
+2. Set `ui_in` to `3` (`011` binary): `uo_out` should be `2` (Sum=0, Carry=1).
+3. Set `ui_in` to `7` (`111` binary): `uo_out` should be `3` (Sum=1, Carry=1).
 
-Explain how to use your project
+The automated tests are handled by cocotb in `test/test.py`.
 
 ## External hardware
-
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+None. This project uses internal logic only.
